@@ -96,6 +96,127 @@ def halaman_menu():
               font=("Arial", 14, "bold"), command=lambda: show_frame(frame_input)).pack(pady=10)
 
     tk.Button(frame_menu, text="Lihat Data Parkir", width=25, bg="#AF7AC5", fg="white",
-              font=("Arial", 14
+              font=("Arial", 14, "bold"), command=lambda: show_frame(frame_search)).pack(pady=10)
+
+    tk.Button(frame_menu, text="Jumlah Karcis", width=25, bg="#884EA0", fg="white",
+              font=("Arial", 14, "bold"), command=lambda: show_frame(frame_jumlah)).pack(pady=10)
+
+# ---------------- HALAMAN INPUT DATA ----------------
+def halaman_input():
+    tk.Label(frame_input, text="INPUT DATA PARKIR", font=("Arial Black", 20),
+             fg="#935116", bg="#FEF5E7").pack(pady=20)
+
+    tk.Label(frame_input, text="Nomor Plat:", bg="#FEF5E7", font=("Arial", 14)).pack()
+    plat = tk.Entry(frame_input, font=("Arial", 14))
+    plat.pack()
+
+    tk.Label(frame_input, text="Jenis Kendaraan:", bg="#FEF5E7", font=("Arial", 14)).pack(pady=(10,0))
+
+    pilihan = tk.StringVar(value="Mobil")
+    jenis = ttk.OptionMenu(frame_input, pilihan, "Mobil", "Mobil", "Motor")
+    jenis.pack()
+
+    tk.Label(frame_input, text="Waktu Masuk (Otomatis)", bg="#FEF5E7",
+             font=("Arial", 14)).pack(pady=(10,0))
+
+    def simpan_data():
+        if not plat.get():
+            popup("Peringatan", "Nomor Plat harus diisi!", "#F1C40F")
+            return
+
+        waktu_masuk = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        biaya = 10000 if pilihan.get() == "Mobil" else 5000
+
+        data_parkir.append({
+            "plat": plat.get(),
+            "jenis": pilihan.get(),
+            "waktu": waktu_masuk,
+            "biaya": biaya
+        })
+
+        popup("Sukses", "Data parkir berhasil disimpan!", "#27AE60")
+
+        plat.delete(0, tk.END)
+        pilihan.set("Mobil")
+        show_frame(frame_menu)
+
+    tk.Button(frame_input, text="Simpan", bg="#D35400", fg="white",
+              font=("Arial", 14, "bold"), command=simpan_data).pack(pady=20)
+
+    tk.Button(frame_input, text="Kembali", bg="#BFC9CA",
+              font=("Arial", 12, "bold"), command=lambda: show_frame(frame_menu)).pack()
+
+# ---------------- HALAMAN SEARCH ----------------
+def halaman_search():
+    global tree
+    tk.Label(frame_search, text="DATA KARCIS PARKIR", font=("Arial Black", 20),
+             fg="#0E6251", bg="#E8F8F5").pack(pady=20)
+
+    frame_search_controls = tk.Frame(frame_search, bg="#E8F8F5")
+    frame_search_controls.pack(pady=10)
+
+    tk.Label(frame_search_controls, text="Cari Plat:", bg="#E8F8F5").grid(row=0, column=0)
+    entry_plat = tk.Entry(frame_search_controls)
+    entry_plat.grid(row=0, column=1)
+
+    tk.Label(frame_search_controls, text="Jenis:", bg="#E8F8F5").grid(row=0, column=2)
+    combo_jenis = ttk.Combobox(frame_search_controls, values=["", "Mobil", "Motor"], state="readonly")
+    combo_jenis.grid(row=0, column=3)
+
+    tk.Label(frame_search_controls, text="Waktu:", bg="#E8F8F5").grid(row=0, column=4)
+    entry_waktu = tk.Entry(frame_search_controls)
+    entry_waktu.grid(row=0, column=5)
+
+    def search():
+        refresh_table(entry_plat.get(), combo_jenis.get(), entry_waktu.get())
+
+    tk.Button(frame_search_controls, text="Cari", bg="#28B463",
+              fg="white", command=search).grid(row=0, column=6, padx=10)
+
+    frame_table = tk.Frame(frame_search)
+    frame_table.pack(pady=10)
+
+    tree = ttk.Treeview(frame_table,
+                        columns=("No", "Plat", "Jenis", "Waktu", "Biaya"),
+                        show="headings", height=10)
+
+    for col in ("No","Plat","Jenis","Waktu","Biaya"):
+        tree.heading(col, text=col)
+        tree.column(col, width=130, anchor="center")
+
+    tree.pack()
+
+    tk.Button(frame_search, text="Kembali", bg="#BFC9CA",
+              font=("Arial", 12, "bold"), command=lambda: show_frame(frame_menu)).pack(pady=15)
+
+# ---------------- HALAMAN JUMLAH ----------------
+def halaman_jumlah():
+    global label_total_karcis, label_total_uang
+    tk.Label(frame_jumlah, text="JUMLAH KARCIS", font=("Arial Black", 20),
+             fg="#1B4F72", bg="#EBF5FB").pack(pady=25)
+
+    label_total_karcis = tk.Label(frame_jumlah, text="", font=("Arial", 16), bg="#EBF5FB")
+    label_total_karcis.pack()
+
+    label_total_uang = tk.Label(frame_jumlah, text="", font=("Arial", 16),
+                                bg="#EBF5FB", fg="#145A32")
+    label_total_uang.pack()
+
+    tk.Button(frame_jumlah, text="Kembali", bg="#BFC9CA",
+              font=("Arial", 12, "bold"), command=lambda: show_frame(frame_menu)).pack(pady=20)
+
+# ---------------- Init Frame ----------------
+halaman_login()
+halaman_menu()
+halaman_input()
+halaman_search()
+halaman_jumlah()
+
+for frame in (frame_login, frame_menu, frame_input, frame_search, frame_jumlah):
+    frame.place(relwidth=1, relheight=1)
+
+show_frame(frame_login)
+root.mainloop()
+
 
 
